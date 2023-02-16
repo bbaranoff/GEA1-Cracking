@@ -1,73 +1,72 @@
 #include <stdio.h>
 #include <string.h>
 
-const char *UB[2] = {"0", "1"};
-const char *TAC[3] = {"0", "1", "2"};
-const char *V[5] = {"0", "1", "2", "3", "4"};
+char *UB[] = {"0", "1"};
+char *TAC[] = {"0", "1", "2"};
+char *V[] = {"0", "1", "2", "3", "4"};
 
-char MB(char *s) {
+char *MB(char *s) {
     if (strcmp(s, "00") == 0)
-        return '0';
-    else if (strcmp(s, "01") == 0)
-        return '1';
-    else if (strcmp(s, "10") == 0)
-        return '2';
-    else
-        return '3';
+        return "0";
+    if (strcmp(s, "01") == 0)
+        return "1";
+    if (strcmp(s, "10") == 0)
+        return "2";
+    return "3";
 }
 
-char MA(char *s) {
+char *MA(char *s) {
     if (strcmp(s, "00") == 0)
-        return '0';
-    else if (strcmp(s, "01") == 0)
-        return '1';
-    else if (strcmp(s, "10") == 0)
-        return '2';
-    else
-        return '3';
+        return "0";
+    if (strcmp(s, "01") == 0)
+        return "1";
+    if (strcmp(s, "10") == 0)
+        return "2";
+    return "3";
 }
 
-char MC(char *s) {
+char *MC(char *s) {
     if (strcmp(s, "0") == 0)
-        return '0';
-    else
-        return '1';
+        return "0";
+    return "1";
 }
 
-void find_secret_string(int left, int right, char u, char *v, char *s) {
+void find_secret_string(int left, int right, char *u, char *v, char *s) {
     if (left > right)
         return;
-
+    
     char substring[8];
-    strncpy(substring, s + left, right - left + 1);
-    substring[right - left + 1] = '\0';
-
-    if (MB(substring) != u)
+    strncpy(substring, &s[left], right-left+1);
+    substring[right-left+1] = '\0';
+    
+    if (strcmp(MB(strncpy(substring, &s[left], 2)), u) != 0)
         return;
-    if (MA(substring + 1) != v[0] - '0')
+    if (strcmp(MA(strncpy(substring+1, &s[left+1], 3)), TAC[atoi(v)]) != 0)
         return;
-    if (MC(substring + 2) != v[1])
+    if (strcmp(MC(strncpy(substring+6, &s[right], 1)), &v[1]) != 0)
         return;
-
+    
     if (strcmp(substring, s) == 0) {
         printf("%s\n", substring);
     } else {
         int mid = (left + right) / 2;
-        char new_u = v[1] + MB(substring + 2);
-        char new_v[3] = {V[strtol(v, NULL, 10) + 1][0], MA(substring + 4), '\0'};
-        find_secret_string(left, mid, v[1], new_v, s);
-        new_u = V[strtol(v, NULL, 10) + 1][0] + MA(substring + 4);
-        new_v[0] = v[1];
-        new_v[1] = MC(substring + 5);
-        find_secret_string(mid + 1, right, new_u, new_v, s);
+        char vu[3];
+        vu[0] = v[1];
+        vu[1] = MB(strncpy(substring+2, &s[mid+1], 3))[0];
+        vu[2] = '\0';
+        char va[3];
+        va[0] = V[atoi(v)+1][0];
+        va[1] = MA(strncpy(substring+4, &s[mid-1], 3))[0];
+        va[2] = '\0';
+        find_secret_string(left, mid, vu, va, s);
+        vu[0] = V[atoi(v)+1][0];
+        vu[1] = MA(strncpy(substring+7, &s[mid], 2))[0];
+        find_secret_string(mid+1, right, vu, v, s);
     }
 }
 
 int main() {
     char *s = "101202220302012032230031010121112";
-    int n = strlen(s);
-    char u = '0';
-    char v[3] = {'0', '0', '\0'};
-    find_secret_string(0, n - 1, u, v, s);
+    find_secret_string(0, strlen(s)-1, "0", "0", s);
     return 0;
 }
